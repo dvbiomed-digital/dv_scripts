@@ -13,13 +13,13 @@ import platform
 from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
-
+from time import gmtime, strftime
 
 oracledb.version = "8.3.0"
 sys.modules["cx_Oracle"] = oracledb
 
 if platform.system() == 'Windows':
-    dotenv_path = Path('C:/Users/opc/Desktop/airflow/dags/.env')
+    dotenv_path = Path('C:/Users/opc/Desktop/SERVER/GitHub/dv_airflow/dags/.env')
 else:
     dotenv_path = Path('/opt/airflow/dags/.env')
 load_dotenv(dotenv_path = dotenv_path)
@@ -92,7 +92,7 @@ def db_delete_sql(src_df, table_name):
     pkey = db_read_sql(src_pkey_query, 'src')
     pkey_list = pkey['COLUMN_NAME'].tolist()
     for i, pkey in enumerate(pkey_list):
-        pkey_value = '(' + ','.join("('" + np.unique(src_df[pkey]) + "',0)").replace(' ','') + ')'
+        # pkey_value = '(' + ','.join("('" + np.unique(src_df[pkey]) + "',0)").replace(' ','') + ')'
         if i == 0:
             del_trg_sql = f"""
                 DELETE FROM {table_name} WHERE {pkey_list[i]} = :{i+1}
@@ -125,7 +125,7 @@ def check_table_if_exist(table_name, dest):
         return False
 
 
-def request_sql(table_name, prefix = ['create_table', 'select_table'][0]):
+def request_sql(table_name, prefix = ['create_table', 'select_table'][1]):
     token = os.getenv('GITHUB_TOKEN')
     sql_path = os.getenv('GITHUB_SQL_PATH')
     url = f'{sql_path}/{prefix.lower()}_{table_name.lower()}.sql'
@@ -220,3 +220,27 @@ def update_erp(table_name):
             db_append_sql(src_df, table_name)
             
             return True
+
+
+def check_table(table_names):
+    check_table = pd.DataFrame(table_names, columns =['TABLE_NAME'])
+    for i, table_name in enumerate(table_names):
+        src_ym_num_query = f"""
+            SELECT 
+                CAST(count(*) AS INT) AS NUM_SRC
+            FROM {table_name}
+            """
+        trg_ym_num_query = f"""
+            SELECT 
+                CAST(count(*) AS INT) AS NUM_TRG
+            FROM {table_name}
+            """
+        check_table.loc[check_table['TABLE_NAME'] == table_name, 'NUM_SRC'] = db_read_sql(src_ym_num_query, 'src').iloc[0,0]
+        check_table.loc[check_table['TABLE_NAME'] == table_name, 'NUM_TRG'] = db_read_sql(trg_ym_num_query, 'trg').iloc[0,0]
+        check_table.loc[check_table['TABLE_NAME'] == table_name, 'TIME'] = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    check_table = check_table.assign(CHECK = np.select([check_table['NUM_TRG'] == check_table['NUM_SRC']], 'Y', 'N'))
+    return check_table
+table_name=i
+for i in table_names:
+    
+    update_erp(i)
