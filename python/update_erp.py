@@ -215,7 +215,11 @@ def update_erp(table_name):
                 
             src_df = pd.concat(src_df)
  
-            db_delete_sql(src_df, table_name)
+            if table_name == 'TLF_FILE':
+                YM_STR = '(' + ','.join(("'" + YM['YM'] + "'").tolist()).replace(" ", "") + ')'
+                db_to_sql(f"DELETE FROM {table_name} WHERE REPLACE({time_col}, ' ','') IN {YM_STR}", 'trg')
+            else:
+                db_delete_sql(src_df, table_name)
 
             db_append_sql(src_df, table_name)
             
@@ -223,7 +227,11 @@ def update_erp(table_name):
 
 
 def check_table(table_names):
-    check_table = pd.DataFrame(table_names, columns =['TABLE_NAME'])
+    check_table = pd.DataFrame(
+        table_names,
+        columns = ['TABLE_NAME']
+        )
+    
     for i, table_name in enumerate(table_names):
         src_ym_num_query = f"""
             SELECT 
@@ -240,7 +248,4 @@ def check_table(table_names):
         check_table.loc[check_table['TABLE_NAME'] == table_name, 'TIME'] = strftime("%Y-%m-%d %H:%M:%S", gmtime())
     check_table = check_table.assign(CHECK = np.select([check_table['NUM_TRG'] == check_table['NUM_SRC']], 'Y', 'N'))
     return check_table
-table_name=i
-for i in table_names:
-    
-    update_erp(i)
+
