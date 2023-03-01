@@ -228,7 +228,25 @@ def update_erp(table_name):
             return True
 
 
-def check_table(table_names):
+def check_table():
+    table_names = [
+        "BMA_FILE",
+        "BMB_FILE",
+        "CCC_FILE",
+        "GEM_FILE",
+        "IMA_FILE",
+        "IMD_FILE",
+        "IMG_FILE",
+        "IMK_FILE",
+        "OCC_FILE",
+        "OGA_FILE",
+        "OGB_FILE",
+        "OHA_FILE",
+        "OHB_FILE",
+        "TC_OBG_FILE",
+        "TC_OBK_FILE",
+        "TLF_FILE"
+        ]
     check_table = pd.DataFrame(
         table_names,
         columns = ['TABLE_NAME']
