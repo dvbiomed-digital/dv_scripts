@@ -14,6 +14,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
 from time import gmtime, strftime
+import warnings
+warnings.filterwarnings("ignore")
 
 oracledb.version = "8.3.0"
 sys.modules["cx_Oracle"] = oracledb
