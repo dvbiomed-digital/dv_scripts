@@ -10,7 +10,7 @@ import cx_Oracle
 import oracledb
 import sqlalchemy
 import platform
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from pathlib import Path
 from time import gmtime, strftime
@@ -265,7 +265,7 @@ def check_table():
             """
         check_table.loc[check_table['TABLE_NAME'] == table_name, 'NUM_SRC'] = db_read_sql(src_ym_num_query, 'src').iloc[0,0]
         check_table.loc[check_table['TABLE_NAME'] == table_name, 'NUM_TRG'] = db_read_sql(trg_ym_num_query, 'trg').iloc[0,0]
-        check_table.loc[check_table['TABLE_NAME'] == table_name, 'TIME'] = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+        check_table.loc[check_table['TABLE_NAME'] == table_name, 'TIME'] = (datetime.utcnow() + timedelta(hours=+8)).strftime("%Y-%m-%dT%H:%M:%S")
     check_table = check_table.assign(CHECK = np.select([check_table['NUM_TRG'] == check_table['NUM_SRC']], 'Y', 'N'))
     return check_table
 
