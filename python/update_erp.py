@@ -138,6 +138,7 @@ def request_sql(table_name, prefix = ['create_table', 'select_table'][1]):
     sql_txt = response.text
     return sql_txt
 
+
 def update_erp(table_name):
     table_name = table_name.upper()
     print(f'更新表格{table_name}')
