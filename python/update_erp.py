@@ -85,10 +85,13 @@ def db_append_sql(src_df, trg_table_name):
 
 def db_delete_sql(src_df, table_name):
     src_pkey_query = f"""
-        SELECT distinct column_name FROM all_cons_columns WHERE constraint_name = (
+        SELECT distinct column_name 
+        FROM all_cons_columns 
+        WHERE constraint_name = (
           SELECT constraint_name FROM user_constraints 
           WHERE UPPER(table_name) = UPPER('{table_name}') AND CONSTRAINT_TYPE = 'P'
-        )
+            )
+        AND TABLE_NAME = UPPER('{table_name}')
         """
     sqlconn, cursor = sql_conn('trg')
     pkey = db_read_sql(src_pkey_query, 'src')
@@ -134,7 +137,6 @@ def request_sql(table_name, prefix = ['create_table', 'select_table'][1]):
     response = requests.get(f'{url}?token={token}')
     sql_txt = response.text
     return sql_txt
-
 
 def update_erp(table_name):
     table_name = table_name.upper()
