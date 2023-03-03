@@ -225,6 +225,7 @@ def update_erp(table_name):
                 db_to_sql(f"DELETE FROM {table_name} WHERE REPLACE({time_col}, ' ','') IN {YM_STR}", 'trg')
             else:
                 # db_delete_sql(src_df, table_name)
+                YM_STR = '(' + ','.join(("'" + YM['YM'] + "'").tolist()).replace(" ", "") + ')'
                 db_to_sql(f"DELETE FROM {table_name} WHERE REPLACE({time_col}, ' ','') IN {YM_STR}", 'trg')
 
             db_append_sql(src_df, table_name)
