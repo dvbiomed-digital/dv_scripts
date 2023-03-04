@@ -274,3 +274,4 @@ def check_table():
     check_table = check_table.assign(CHECK = np.select([check_table['NUM_TRG'] == check_table['NUM_SRC']], 'Y', 'N'))
     return check_table
 
+
